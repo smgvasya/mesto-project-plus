@@ -1,26 +1,29 @@
-// Импортируем типы для объектов запроса и ответа Express
-import express, { Request, Response } from 'express';
-import mongoose from 'mongoose';
-
+import express, { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
+import userRouter from "./routes/user";
+import cardRouter from "./routes/card";
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 
 // Создаём экземпляр приложения Express
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
+
+app.use("/users", userRouter);
+app.use("/cards", cardRouter);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  req.user = {
+    _id: "655570816b4684fbb881c19c",
+  };
+  next();
+});
 
 app.listen(PORT, () => {
-    // Если всё работает, консоль покажет, какой порт приложение слушает
-    console.log(`App listening on port ${PORT}`)
-})
-
-// app.get('/', (req: Request, res: Response) => {
-//     res.send(
-//         `<html>
-//         <body>
-//             <p>Ответ на сигнал из далёкого космоса</p>
-//         </body>
-//         </html>`
-//     );
-// });
+  // Если всё работает, консоль покажет, какой порт приложение слушает
+  console.log(`App listening on port ${PORT}`);
+});

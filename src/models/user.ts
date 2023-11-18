@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
 export type User = {
   name: string;
@@ -6,28 +6,26 @@ export type User = {
   avatar: string;
 };
 
-const userSchema = new Schema<User>({
-  name: {
-    type: String,
-    minlength: 2,
-    maxlength: 30,
-    required: true,
-    default: "Жак-Ив Кусто",
+const userSchema = new Schema<User>(
+  {
+    name: {
+      type: String,
+      minlength: 2,
+      maxlength: 30,
+      required: true,
+    },
+    about: {
+      type: String,
+      minlength: 2,
+      maxlength: 200,
+      required: true,
+    },
+    avatar: {
+      type: String,
+      required: true,
+    },
   },
-  about: {
-    type: String,
-    minlength: 2,
-    maxlength: 200,
-    required: true,
-    default: "Исследователь",
-  },
-  avatar: {
-    type: String,
-    required: true,
-    default:
-      "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
-  },
-});
+  { versionKey: false }
+);
 
-export default mongoose.model<User>('user', userSchema);
-
+export default model<User>("user", userSchema);

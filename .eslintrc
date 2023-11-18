@@ -1,11 +1,11 @@
 {
   "env": {
-      "es2021": true,
-      "node": true
+    "es2021": true,
+    "node": true
   },
   "extends": [
       "airbnb-base",
-      "plugin:react/recommended"
+      "prettier"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -13,12 +13,10 @@
       "sourceType": "module"
   },
   "plugins": [
-      "@typescript-eslint"
+      "@typescript-eslint",
+      "prettier"
   ],
   "settings": {
-      "react": {
-        "version": "detect"
-      },
       "import/resolver": {
           "node": {
               "extensions": [
@@ -41,6 +39,20 @@
               "js": "never",
               "ts": "never"
           }
-      ]
-  }
+      ],
+      //TODO: fix Enum type
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error",
+      "no-shadow": "off",
+      "@typescript-eslint/no-shadow": ["error"],
+      "import/prefer-default-export": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.js","*.ts"],
+      "rules": {
+        "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+      }
+    }
+  ]
 }
