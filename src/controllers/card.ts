@@ -17,7 +17,6 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
     .then((cards) => {
@@ -49,7 +48,9 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   )
     .then((card) => {
       if (!card) {
-        return res.status(INTERNAL_SERVER_ERROR).send({ message: "Ошибка" });
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
       res.status(OK).send(card);
     })
@@ -68,7 +69,9 @@ export const dislikeCard = (
   )
     .then((card) => {
       if (!card) {
-        return res.status(INTERNAL_SERVER_ERROR).send({ message: "Ошибка" });
+        return res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: "На сервере произошла ошибка" });
       }
       res.status(OK).send(card);
     })

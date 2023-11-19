@@ -11,7 +11,9 @@ export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
     .catch((err) => {
-      res.status(INTERNAL_SERVER_ERROR).send({ message: err.message });
+      res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "На сервере произошла ошибка" });
     });
   next();
 };

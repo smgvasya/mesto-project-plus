@@ -10,6 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+mongoose.set("strictQuery", false);
 
 mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
 
