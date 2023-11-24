@@ -5,6 +5,7 @@ import userRouter from "./routes/user";
 import cardRouter from "./routes/card";
 import { login, createUser } from "./controllers/user";
 import { errorLogger, requestLogger } from "./middlewares/logger";
+import { errorHandler } from "./middlewares/errorHandler";
 import { auth } from "./middlewares/auth";
 
 require("dotenv").config();
@@ -49,8 +50,8 @@ app.use("/cards", cardRouter);
 
 app.use(errorLogger);
 app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
-  console.log(process.env.MESTODB);
 });
