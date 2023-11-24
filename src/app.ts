@@ -1,30 +1,57 @@
-import express, { NextFunction, Request, Response } from "express";
+import express from "express";
 import mongoose from "mongoose";
+import { celebrate, Joi, errors } from "celebrate";
 import userRouter from "./routes/user";
 import cardRouter from "./routes/card";
-// Слушаем 3000 порт
-const { PORT = 3000 } = process.env;
+import { login, createUser } from "./controllers/user";
+import { errorLogger, requestLogger } from "./middlewares/logger";
+import { errorHandler } from "./middlewares/errorHandler";
+import { auth } from "./middlewares/auth";
 
-// Создаём экземпляр приложения Express
+require("dotenv").config();
+
+const { PORT, MESTODB } = process.env;
+
 const app = express();
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.set("strictQuery", false);
+mongoose.connect(MESTODB as string );
 
-mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
+app.use(requestLogger);
+app.post(
+  "/signin",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login,
+);
 
+app.post(
+  "/signup",
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().email().required(),
+      password: Joi.string().required(),
+      name: Joi.string().min(2).max(30),
+      about: Joi.string().min(2).max(200),
+      avatar: Joi.string().uri(),
+    }),
+  }),
+  createUser,
+);
+
+app.use(auth);
 app.use("/users", userRouter);
 app.use("/cards", cardRouter);
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  req.user = {
-    _id: "655570816b4684fbb881c19c",
-  };
-  next();
-});
+app.use(errorLogger);
+app.use(errors());
+app.use(errorHandler);
 
 app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
   console.log(`App listening on port ${PORT}`);
 });

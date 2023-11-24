@@ -1,6 +1,6 @@
 import { Schema, ObjectId, model } from "mongoose";
 
-export type Card = {
+export type CardType = {
   name: string;
   link: string;
   owner: ObjectId;
@@ -8,7 +8,7 @@ export type Card = {
   createdAt: Date;
 };
 
-const cardSchema = new Schema<Card>(
+const cardSchema = new Schema<CardType>(
   {
     name: {
       type: String,
@@ -34,7 +34,7 @@ const cardSchema = new Schema<Card>(
       default: Date.now,
     },
   },
-  { versionKey: false }
+  { versionKey: false },
 );
 
-export default model<Card>("card", cardSchema);
+export default model<CardType>("card", cardSchema);

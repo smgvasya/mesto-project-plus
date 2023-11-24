@@ -10,9 +10,16 @@ const AVATAR: `${typeof PROFILE_ME}/avatar` = `${PROFILE_ME}/avatar`;
 const LIKES: `${typeof CARD_ID}/likes` = `${CARD_ID}/likes`;
 
 const OK = 200;
-const BAD_REQUEST = 400; //переданы некорректные данные
+const BAD_REQUEST = 400; // переданы некорректные данные
+const UNAUTHORIZED = 401; // при неправильных почте и пароле
+const FORBIDDEN = 403; // попытка удалить чужую карточку
 const NOT_FOUND = 404;
-const INTERNAL_SERVER_ERROR = 500; //ошибка по умолчанию.
+const CONFLICT = 409; // при регистрации указан email, который уже существует на сервере
+const INTERNAL_SERVER_ERROR = 500; // ошибка по умолчанию.
+
+const httpRegex =
+  // eslint-disable-next-line no-useless-escape
+  /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
 
 export {
   USERS,
@@ -26,10 +33,8 @@ export {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
+  httpRegex,
+  UNAUTHORIZED,
+  FORBIDDEN,
+  CONFLICT,
 };
-
-// {
-//   "name": "Жак-Ив Кусто",
-//   "about": "Исследователь",
-//   "avatar": "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
-// }
