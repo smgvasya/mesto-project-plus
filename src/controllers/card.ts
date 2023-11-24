@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Card from "../models/cards";
-import { OK, NOT_FOUND, INTERNAL_SERVER_ERROR } from "../utils/constants";
+import { OK } from "../utils/constants";
+import ErrClass from "../classes/Error";
 
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
@@ -12,6 +13,9 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     createdAt: Date.now(),
   })
     .then((card) => {
+      if (!card) {
+        throw ErrClass.BadReqError("Переданы некорректные данные");
+      }
       res.status(OK).send(card);
     })
     .catch(next);
@@ -20,6 +24,9 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
     .then((cards) => {
+      if (!cards) {
+        throw ErrClass.BadReqError("Переданы некорректные данные");
+      }
       res.status(OK).send(cards);
     })
     .catch(next);
@@ -28,12 +35,12 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
 export const removeCardById = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND).send({ message: "Ошибка" });
+        throw ErrClass.ForbiddentError("Нельзя удалять чужую карточку");
       }
       res.status(OK).send(card);
     })
@@ -44,13 +51,11 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "На сервере произошла ошибка" });
+        throw ErrClass.NotFoundError("Не найдено");
       }
       res.status(OK).send(card);
     })
@@ -60,18 +65,16 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
 export const dislikeCard = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "На сервере произошла ошибка" });
+        throw ErrClass.ConflictError("На сервере произошла ошибка");
       }
       res.status(OK).send(card);
     })

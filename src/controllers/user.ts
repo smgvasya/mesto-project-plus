@@ -20,7 +20,7 @@ export const getMeInfo = (req: Request, res: Response, next: NextFunction) => {
       if (!user) {
         throw ErrClass.NotFoundError("Не найдено");
       }
-      res.send(user);
+      res.status(OK).send(user);
     })
     .catch(next);
 };
@@ -114,7 +114,7 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
             expiresIn: "7d",
           });
           res.cookie("token", token, { httpOnly: true });
-          res.status(OK).send(token);
+          res.status(OK).send(user);
         })
         .catch(next);
     })

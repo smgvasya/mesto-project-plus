@@ -8,3 +8,5 @@ declare namespace Express {
 }
 
 declare module 'bcrypt'
+declare module 'celebrate'
+declare module 'winston'

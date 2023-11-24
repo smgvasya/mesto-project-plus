@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import express from "express";
 import mongoose from "mongoose";
 import { celebrate, Joi, errors } from "celebrate";
@@ -10,13 +9,13 @@ import { auth } from "./middlewares/auth";
 
 require("dotenv").config();
 
-const { PORT, MESTODB = "mongodb://127.0.0.1:27017/mestodb" } = process.env;
+const { PORT, MESTODB } = process.env;
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.set("strictQuery", false);
-mongoose.connect(MESTODB);
+mongoose.connect(MESTODB as string );
 
 app.use(requestLogger);
 app.post(
@@ -52,7 +51,6 @@ app.use(errorLogger);
 app.use(errors());
 
 app.listen(PORT, () => {
-  // Если всё работает, консоль покажет, какой порт приложение слушает
   console.log(`App listening on port ${PORT}`);
-  console.log(process.env.NODE_ENV);
+  console.log(process.env.MESTODB);
 });
