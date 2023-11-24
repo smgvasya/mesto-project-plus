@@ -1,35 +1,40 @@
+/* eslint-disable consistent-return */
 import { NextFunction, Request, Response } from "express";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user";
-import {
-  OK,
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-} from "../utils/constants";
+import { OK } from "../utils/constants";
+import ErrClass from "../classes/Error";
 
- const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = process.env;
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
-    .catch((err) => {
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "На сервере произошла ошибка" });
-    });
-  next();
+    .catch(next);
+};
+
+export const getMeInfo = (req: Request, res: Response, next: NextFunction) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw ErrClass.NotFoundError("Не найдено");
+      }
+      res.send(user);
+    })
+    .catch(next);
 };
 
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash) => User.create({ name, about, avatar, email, password: hash }))
-    .then((user) => {
+    .then((hash: any) =>
+      User.create({ name, about, avatar, email, password: hash }),
+    )
+    .then((user: any) => {
       if (!user) {
-        return res.status(BAD_REQUEST).send({ message: "Ошибка" });
+        throw ErrClass.NotFoundError("Не найдено");
       }
       res.status(OK).send(user);
     })
@@ -39,14 +44,12 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
 export const getUserById = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
+        throw ErrClass.NotFoundError("Не найдено");
       }
       res.status(OK).send(user);
     })
@@ -56,21 +59,19 @@ export const getUserById = (
 export const updateProfile = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { name, link } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { name, about: link },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
+        throw ErrClass.NotFoundError("Не найдено");
       }
-       return res.status(OK).send(user);
+      return res.status(OK).send(user);
     })
     .catch(next);
 };
@@ -78,53 +79,42 @@ export const updateProfile = (
 export const updateAvatar = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
+        throw ErrClass.NotFoundError("Не найдено");
       }
       res.status(OK).send(user);
     })
     .catch(next);
 };
 
-
 export const login = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
-  User
-    .findOne({ email })
+  User.findOne({ email })
     .select("+password")
     .then((user) => {
       if (!user) {
-        throw new Error('Неправильные почта или пароль');
+        throw ErrClass.UnauthorizedError("Неверный логин и пароль");
       }
-
       bcrypt
         .compare(password, user.password)
-        .then((matched) => {
+        .then((matched: any) => {
           if (!matched) {
-            // хеши не совпали — отклоняем промис
-            throw new Error('Неправильные почта или пароль');
+            return ErrClass.UnauthorizedError("Неверный логин и пароль");
           }
-          const token = jwt.sign(
-            { _id: user._id },
-            NODE_ENV === "production" ? JWT_SECRET : "dev-secret",
-          );
-          res
-            .cookie("token", `Bearer ${token}`, {
-              maxAge: 60 * 60 * 24 * 7,
-              httpOnly: true,
-            })
-            .send(user);
+          const token = jwt.sign({ _id: user._id }, JWT_SECRET as string, {
+            expiresIn: "7d",
+          });
+          res.cookie("token", token, { httpOnly: true });
+          res.status(OK).send(token);
         })
         .catch(next);
     })
