@@ -13,14 +13,10 @@ export default class ErrClass extends Error {
 
   constructor(
     message: string = "На сервере произошла ошибка",
-    statusCode: number = INTERNAL_SERVER_ERROR,
+    statusCode: number = INTERNAL_SERVER_ERROR
   ) {
     super(message);
     this.statusCode = statusCode;
-  }
-
-  static OkError(message: string) {
-    return new ErrClass(message, OK);
   }
 
   static BadReqError(message: string) {

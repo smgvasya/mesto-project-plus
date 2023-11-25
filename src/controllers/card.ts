@@ -1,26 +1,31 @@
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import Card from "../models/cards";
 import { OK } from "../utils/constants";
 import ErrClass from "../classes/Error";
 
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
+  const owner = req.user._id;
   Card.create({
-    name: req.body.name,
-    link: req.body.link,
-    owner: req.user._id,
+    name,
+    link,
+    owner,
   })
     .then((card) => {
-      if (!card) {
-        throw ErrClass.BadReqError("Переданы некорректные данные");
-      }
       res.status(OK).send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
-  Card.find({}).populate('owner')
+  Card.find({})
+    .populate("owner")
     .then((cards) => {
       res.status(OK).send(cards);
     })
@@ -32,12 +37,11 @@ export const removeCardById = (
   res: Response,
   next: NextFunction
 ) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  const { cardId } = req.params;
+  const { _id } = req.user;
+  Card.findOneAndDelete({ _id: cardId, owner: { _id } })
     .then((card) => {
       if (!card) {
-        throw ErrClass.NotFoundError("Не найдено");
-      }
-      if (String(card.owner) !== req.user._id) {
         throw ErrClass.ForbiddentError("Нельзя удалять чужую карточку");
       }
       res.status(OK).send(card);
@@ -76,5 +80,10 @@ export const dislikeCard = (
       }
       res.status(OK).send(card);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };

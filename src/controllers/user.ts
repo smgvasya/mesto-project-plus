@@ -1,5 +1,6 @@
 /* eslint-disable consistent-return */
 import { NextFunction, Request, Response } from "express";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user";
@@ -22,14 +23,19 @@ export const getMeInfo = (req: Request, res: Response, next: NextFunction) => {
       }
       res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt
     .hash(password, 10)
-    .then((hash: any) =>
+    .then((hash: string) =>
       User.create({ name, about, avatar, email, password: hash })
     )
     .then((user: any) => {
@@ -41,7 +47,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .catch((err: { code: number }) => {
       if (err.code === 11000) {
         next(ErrClass.ConflictError("email уже существует на сервере"));
+      } else if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
       }
+      next(err);
     });
 };
 
@@ -57,7 +66,12 @@ export const getUserById = (
       }
       res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 export const updateProfile = (
@@ -77,7 +91,12 @@ export const updateProfile = (
       }
       return res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 export const updateAvatar = (
@@ -97,7 +116,12 @@ export const updateAvatar = (
       }
       res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        next(ErrClass.BadReqError("переданы некорректные данные"));
+      }
+      next(err);
+    });
 };
 
 export const login = (req: Request, res: Response, next: NextFunction) => {

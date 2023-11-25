@@ -6,7 +6,6 @@ export const errorHandler = (
   req: Request,
   res: Response
 ) => {
-  // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({
