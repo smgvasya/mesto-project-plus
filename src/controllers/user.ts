@@ -18,7 +18,7 @@ export const getMeInfo = (req: Request, res: Response, next: NextFunction) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        throw ErrClass.NotFoundError("Не найдено");
+        throw ErrClass.NotFoundError("Нет пользователя с таким id");
       }
       res.status(OK).send(user);
     })
@@ -30,7 +30,7 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
   bcrypt
     .hash(password, 10)
     .then((hash: any) =>
-      User.create({ name, about, avatar, email, password: hash }),
+      User.create({ name, about, avatar, email, password: hash })
     )
     .then((user: any) => {
       if (!user) {
@@ -38,18 +38,22 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
       }
       res.status(OK).send(user);
     })
-    .catch(next);
+    .catch((err: { code: number }) => {
+      if (err.code === 11000) {
+        next(ErrClass.ConflictError("email уже существует на сервере"));
+      }
+    });
 };
 
 export const getUserById = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw ErrClass.NotFoundError("Не найдено");
+        throw ErrClass.NotFoundError("Нет пользователя с таким id");
       }
       res.status(OK).send(user);
     })
@@ -59,17 +63,17 @@ export const getUserById = (
 export const updateProfile = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { name, link } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { name, about: link },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       if (!user) {
-        throw ErrClass.NotFoundError("Не найдено");
+        throw ErrClass.NotFoundError("Нет пользователя с таким id");
       }
       return res.status(OK).send(user);
     })
@@ -79,17 +83,17 @@ export const updateProfile = (
 export const updateAvatar = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((user) => {
       if (!user) {
-        throw ErrClass.NotFoundError("Не найдено");
+        throw ErrClass.NotFoundError("Нет пользователя с таким id");
       }
       res.status(OK).send(user);
     })

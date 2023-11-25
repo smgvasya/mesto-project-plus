@@ -1,4 +1,6 @@
 import { Schema, ObjectId, model } from "mongoose";
+import { httpRegex } from "../utils/constants";
+import { updateProfile } from "../controllers/user";
 
 export type CardType = {
   name: string;
@@ -19,22 +21,27 @@ const cardSchema = new Schema<CardType>(
     link: {
       type: String,
       required: true,
+      validate: {
+        validator: (u: string) => httpRegex.test(u),
+        message: "Некорректная ссылка",
+      },
     },
     owner: {
       type: Schema.Types.ObjectId,
+      ref: "user",
       required: true,
     },
     likes: {
       type: [Schema.Types.ObjectId],
       default: [],
-      unique: true,
+      ref: "user",
     },
     createdAt: {
       type: Date,
       default: Date.now,
     },
   },
-  { versionKey: false },
+  { versionKey: false }
 );
 
 export default model<CardType>("card", cardSchema);
