@@ -1,12 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import { celebrate, Joi, errors } from "celebrate";
-import userRouter from "./routes/user";
-import cardRouter from "./routes/card";
+import { rootRouter } from "./routes/index";
 import { login, createUser } from "./controllers/user";
 import { errorLogger, requestLogger } from "./middlewares/logger";
 import { errorHandler } from "./middlewares/errorHandler";
 import { auth } from "./middlewares/auth";
+import { httpRegex } from "./utils/constants";
 
 require("dotenv").config();
 
@@ -16,7 +16,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 mongoose.set("strictQuery", false);
-mongoose.connect(MESTODB as string );
+mongoose.connect(MESTODB as string);
 
 app.use(requestLogger);
 app.post(
@@ -27,7 +27,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  login,
+  login
 );
 
 app.post(
@@ -38,15 +38,14 @@ app.post(
       password: Joi.string().required(),
       name: Joi.string().min(2).max(30),
       about: Joi.string().min(2).max(200),
-      avatar: Joi.string().uri(),
+      avatar: Joi.string().pattern(httpRegex),
     }),
   }),
-  createUser,
+  createUser
 );
 
 app.use(auth);
-app.use("/users", userRouter);
-app.use("/cards", cardRouter);
+app.use("/", rootRouter);
 
 app.use(errorLogger);
 app.use(errors());

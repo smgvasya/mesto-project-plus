@@ -6,11 +6,9 @@ import ErrClass from "../classes/Error";
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
   Card.create({
-    name,
-    link,
+    name: req.body.name,
+    link: req.body.link,
     owner: req.user._id,
-    likes: [],
-    createdAt: Date.now(),
   })
     .then((card) => {
       if (!card) {
@@ -22,11 +20,8 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
-  Card.find({})
+  Card.find({}).populate('owner')
     .then((cards) => {
-      if (!cards) {
-        throw ErrClass.BadReqError("Переданы некорректные данные");
-      }
       res.status(OK).send(cards);
     })
     .catch(next);
@@ -35,11 +30,14 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
 export const removeCardById = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
+        throw ErrClass.NotFoundError("Не найдено");
+      }
+      if (String(card.owner) !== req.user._id) {
         throw ErrClass.ForbiddentError("Нельзя удалять чужую карточку");
       }
       res.status(OK).send(card);
@@ -51,7 +49,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true, runValidators: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {
@@ -65,16 +63,16 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
 export const dislikeCard = (
   req: Request,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true, runValidators: true },
+    { new: true }
   )
     .then((card) => {
       if (!card) {
-        throw ErrClass.ConflictError("На сервере произошла ошибка");
+        throw ErrClass.NotFoundError("Не найдено");
       }
       res.status(OK).send(card);
     })
