@@ -79,10 +79,10 @@ export const updateProfile = (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, link } = req.body;
+  const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { name, about: link },
+    { name, about },
     { new: true, runValidators: true }
   )
     .then((user) => {
