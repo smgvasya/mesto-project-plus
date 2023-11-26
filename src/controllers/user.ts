@@ -49,8 +49,9 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
         next(ErrClass.ConflictError("email уже существует на сервере"));
       } else if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
