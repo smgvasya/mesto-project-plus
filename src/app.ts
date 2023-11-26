@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { celebrate, Joi, errors } from "celebrate";
 import { rootRouter } from "./routes/index";
+import { loginValid, createUserValid } from "./validations/usersValid";
 import { login, createUser } from "./controllers/user";
 import { errorLogger, requestLogger } from "./middlewares/logger";
 import { errorHandler } from "./middlewares/errorHandler";
@@ -20,30 +21,9 @@ mongoose.connect(MESTODB as string);
 
 app.use(requestLogger);
 
-app.post(
-  "/signin",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-    }),
-  }),
-  login
-);
+app.post("/signin", loginValid, login);
 
-app.post(
-  "/signup",
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().email().required(),
-      password: Joi.string().required(),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(200),
-      avatar: Joi.string().pattern(httpRegex),
-    }),
-  }),
-  createUser
-);
+app.post("/signup", createUserValid, createUser);
 
 app.use(auth);
 app.use("/", rootRouter);
