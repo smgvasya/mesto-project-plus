@@ -13,7 +13,6 @@ import {
   getUserByIdValid,
   updateProfileValid,
   updateAvatarValid,
-  createUserValid
 } from "../validations/usersValid";
 
 const userRouter = Router();
