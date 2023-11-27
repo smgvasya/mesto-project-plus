@@ -1,8 +1,8 @@
-import { celebrate, Joi } from "celebrate";
+import { celebrate, Joi, Segments } from "celebrate";
 import { httpRegex } from "../utils/constants";
 
 const createUserValid = celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object({
     email: Joi.string().email().required().messages({
       "string.empty": 'Поле "email" не должно быть пустым',
       "string.email": "Некорректный email",
@@ -18,12 +18,12 @@ const createUserValid = celebrate({
       "string.min": 'Минимальная длина поля "about" - 2 символа',
       "string.max": 'Максимальная длина поля "about" - 200 символов',
     }),
-    avatar: Joi.string().pattern(httpRegex).message("Некорректный url"),
+    avatar: Joi.string().pattern(httpRegex).messages({'any.only': "Некорректный url"}),
   }),
 });
 
 const loginValid = celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object({
     email: Joi.string().email().required().messages({
       "string.empty": 'Поле "email" не должно быть пустым',
       "string.email": "Некорректный email",
@@ -35,12 +35,12 @@ const loginValid = celebrate({
 });
 
 const getUserByIdValid = celebrate({
-  params: Joi.object().keys({
+  [Segments.PARAMS]: Joi.object({
     userId: Joi.string()
       .length(24)
       .hex()
       .required()
-      .message("Некорректный id")
+      .messages({'any.only': "Некорректный id"})
       .messages({
         "string.empty": 'Поле "id" не должно быть пустым',
       }),
@@ -48,7 +48,7 @@ const getUserByIdValid = celebrate({
 });
 
 const updateProfileValid = celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object({
     name: Joi.string().min(2).max(30).required().messages({
       "string.min": 'Минимальная длина поля "name" - 2 символа',
       "string.max": 'Максимальная длина поля "name" - 30 символов',
@@ -63,11 +63,11 @@ const updateProfileValid = celebrate({
 });
 
 const updateAvatarValid = celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object({
     avatar: Joi.string()
       .pattern(httpRegex)
       .required()
-      .message("Некорректный url")
+      .messages({'any.only': "Некорректный url"})
       .messages({
         "string.empty": 'Поле "avatar" не должно быть пустым',
       }),

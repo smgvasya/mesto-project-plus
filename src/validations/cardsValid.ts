@@ -1,8 +1,8 @@
-import { celebrate, Joi } from "celebrate";
+import { celebrate, Joi, Segments } from "celebrate";
 import { httpRegex } from "../utils/constants";
 
 const createCardValid = celebrate({
-  body: Joi.object().keys({
+  [Segments.BODY]: Joi.object({
     name: Joi.string().min(2).max(30).required().messages({
       "string.min": 'Минимальная длина поля "name" - 2 символа',
       "string.max": 'Максимальная длина поля "name" - 30 символов',
@@ -11,20 +11,21 @@ const createCardValid = celebrate({
     link: Joi.string()
       .pattern(httpRegex)
       .required()
-      .message("Некорректный url")
+      .messages({'any.only': "Некорректный url"})
       .messages({
         "string.empty": 'Поле "link" не должно быть пустым',
       }),
   }),
 });
 
+
 const cardIdValid = celebrate({
-  params: Joi.object().keys({
+  [Segments.PARAMS]: Joi.object({
     cardId: Joi.string()
       .length(24)
       .hex()
       .required()
-      .message("Некорректный id")
+      .messages({'any.only': "Некорректный id"})
       .messages({
         "string.empty": 'Поле "id" не должно быть пустым',
       }),
