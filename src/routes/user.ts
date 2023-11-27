@@ -13,6 +13,7 @@ import {
   getUserByIdValid,
   updateProfileValid,
   updateAvatarValid,
+  createUserValid
 } from "../validations/usersValid";
 
 const userRouter = Router();
@@ -21,7 +22,6 @@ userRouter.get(USERS, getUsers); // возвращает всех пользов
 userRouter.get(USERS_ID, getUserByIdValid, getUserById); // возвращает пользователя по _id
 userRouter.get(PROFILE_ME, getMeInfo); // возвращает информацию о текущем пользователе
 
-userRouter.post(USERS, createUser); // создаёт пользователя
 userRouter.patch(PROFILE_ME, updateProfileValid, updateProfile); // обновляет профиль
 userRouter.patch(AVATAR, updateAvatarValid, updateAvatar); // обновляет аватар
 
