@@ -18,8 +18,9 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -83,7 +84,8 @@ export const dislikeCard = (
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };

@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
@@ -26,8 +25,9 @@ export const getMeInfo = (req: Request, res: Response, next: NextFunction) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -70,8 +70,9 @@ export const getUserById = (
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -95,8 +96,9 @@ export const updateProfile = (
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -120,8 +122,9 @@ export const updateAvatar = (
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         next(ErrClass.BadReqError("переданы некорректные данные"));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

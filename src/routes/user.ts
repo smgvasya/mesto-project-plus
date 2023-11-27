@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { USERS, USERS_ID, PROFILE_ME, AVATAR } from "../utils/constants";
 import {
-  createUser,
   getUsers,
   getUserById,
   updateAvatar,
