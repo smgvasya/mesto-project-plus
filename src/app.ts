@@ -1,13 +1,14 @@
 import express from "express";
 import mongoose from "mongoose";
-import { celebrate, Joi, errors } from "celebrate";
+import cookieParser from 'cookie-parser';
+import { errors } from "celebrate";
 import { rootRouter } from "./routes/index";
 import { loginValid, createUserValid } from "./validations/usersValid";
 import { login, createUser } from "./controllers/user";
 import { errorLogger, requestLogger } from "./middlewares/logger";
 import { errorHandler } from "./middlewares/errorHandler";
 import { auth } from "./middlewares/auth";
-import { httpRegex } from "./utils/constants";
+
 
 require("dotenv").config();
 
@@ -20,6 +21,7 @@ mongoose.set("strictQuery", false);
 mongoose.connect(MESTODB as string);
 
 app.use(requestLogger);
+app.use(cookieParser());
 
 app.post("/signin", loginValid, login);
 
